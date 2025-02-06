@@ -1,5 +1,3 @@
-import { SupabaseClient } from "@supabase/supabase-js";
-import { bodyParser } from 'body-parser';
 import 'dotenv/config';
 
 // I thought we were jz gonna do
