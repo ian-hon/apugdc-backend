@@ -3,9 +3,10 @@ import { BACKEND_ADDRESS } from "./constants";
 import express from 'express';
 import 'dotenv/config';
 import { validateAction } from "./admin";
-import { createEvent, deleteEvent, editEvent, getEvents } from "./event";
 import { Outcome } from "./outcome";
 import { handleResponse } from "./utils";
+import { Event } from "./event";
+import { User } from "./user";
 
 const app = express();
 app.use(express.urlencoded());
@@ -30,12 +31,18 @@ const adminRoute = async (req, res, func) => {
 // #endregion
 
 
-app.get('/event/fetch', (q, r) => route(q, r, getEvents))
+app.get('/event/fetch', (q, r) => route(q, r, Event.fetchHandler))
+
+app.get('/user/fetch/:tp_number', (q, r) => route(q, r, User.fetchHandler))
 
 // admin
-app.post('/event/create', (q, r) => adminRoute(q, r, createEvent))
-app.post('/event/edit', (q, r) => adminRoute(q, r, editEvent))
-app.post('/event/delete', (q, r) => adminRoute(q, r, deleteEvent))
+app.post('/event/create', (q, r) => adminRoute(q, r, Event.createHandler))
+app.post('/event/edit', (q, r) => adminRoute(q, r, Event.editHandler))
+app.post('/event/delete/:id', (q, r) => adminRoute(q, r, Event.deleteHandler))
+
+app.post('/user/create', (q, r) => adminRoute(q, r, User.createHandler))
+app.post('/user/edit', (q, r) => adminRoute(q, r, User.editHandler))
+app.post('/user/delete/:tp_number', (q, r) => adminRoute(q, r, User.deleteHandler))
 //
 
 

@@ -14,3 +14,8 @@ export enum Outcome {
     // non-admin trying to access admin stuff
     NoPermission = 'NoPermission',
 }
+
+export enum UserError {
+    AlreadyExist = 'AlreadyExist',
+    NoExist = 'NoExist'
+}
