@@ -5,7 +5,7 @@ export class Battlepass {
         const { data } = await db
             .schema('apugdc')
             .from('battlepass')
-            .select('tp_number, points, user(name)');
+            .select('points, user(name)');
         
         return data;
     }
