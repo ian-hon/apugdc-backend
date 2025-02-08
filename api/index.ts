@@ -7,6 +7,7 @@ import { Outcome } from "./outcome";
 import { handleResponse } from "./utils";
 import { Event } from "./event";
 import { User } from "./user";
+import { Battlepass } from "./battlepass";
 
 const app = express();
 app.use(express.urlencoded());
@@ -34,6 +35,8 @@ const adminRoute = async (req, res, func) => {
 app.get('/event/fetch', (q, r) => route(q, r, Event.fetchHandler))
 
 app.get('/user/fetch/:tp_number', (q, r) => route(q, r, User.fetchHandler))
+
+app.get('/leaderboard/fetch', (q, r) => route(q, r, Battlepass.fetchLeaderboardHandler))
 
 // admin
 app.post('/event/create', (q, r) => adminRoute(q, r, Event.createHandler))
