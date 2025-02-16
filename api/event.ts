@@ -5,13 +5,16 @@ export class Event {
     id: number;
     name: string;
     start_time: number; // in epoch unix
-    end_time: number; // in epoch unix
-    host: string;
     location: string;
+    end_time: number; // in epoch unix
+    details: string;
+    battlepass_points: number;
+    battlepass_season: number;
 
     constructor() {}
 
     public static async fetchAll(db: SupabaseClient): Promise<Event[]> {
+        
         const { data } = await db
             .schema('apugdc')
             .from('event')
@@ -23,7 +26,13 @@ export class Event {
     // #region endpoints
     public static async fetchHandler(_, __, db: SupabaseClient) {
         //
-        return await Event.fetchAll(db);
+        try{
+            return await Event.fetchAll(db);
+        }
+        catch (error)
+        {
+            return Outcome.Error;
+        }
     }
     
     // admin
@@ -31,50 +40,76 @@ export class Event {
         // body: event (Event)
         let event = request.body.event;
     
-        await db
+        try{
+            await db
             .schema('apugdc')
             .from('event')
             .insert({
                 name: event.name,
                 start_time: event.start_time,
+                location: event.location,
                 end_time: event.end_time,
-                host: event.host,
-                location: event.location
+                details: event.details,
+                battlepass_points: event.battlepass_points,
+                battlepass_season: event.battlepass_season
+
             });
-    
-        return Outcome.Success;
+
+            return Outcome.Success;
+        }
+        catch(error)
+        {
+            return Outcome.Error;
+        }
+        
     }
     
     public static async editHandler(request, _, db: SupabaseClient) {
         // body: event (Event)
         let event = request.body.event;
     
-        await db
+        try
+        {
+            await db
             .schema('apugdc')
             .from('event')
             .update({
                 name: event.name,
                 start_time: event.start_time,
+                location: event.location,
                 end_time: event.end_time,
-                host: event.host,
-                location: event.location
+                details: event.details,
+                battlepass_points: event.battlepass_points,
+                battlepass_season: event.battlepass_season
             })
             .eq('id', event.id);
     
-        return Outcome.Success;
+            return Outcome.Success;
+        }
+        catch(error)
+        {
+            return Outcome.Error;
+        }
     }
     
     public static async deleteHandler(request, _, db: SupabaseClient) {
         // route: id (number)
         let eventID = request.params.id;
     
-        await db
+        try
+        {
+            await db
             .schema('apugdc')
             .from('event')
             .delete()
             .eq('id', eventID);
     
-        return Outcome.Success;
+            return Outcome.Success;
+        }
+        catch(error)
+        {
+            return Outcome.Error;
+        }
     }
     //
     // #endregion

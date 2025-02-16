@@ -11,6 +11,10 @@ export class User {
     phone_number: string;
     committee: boolean;
     additional: any;
+    favourite_game_genre: string;
+    interest: string;
+    active_battlepass: number;
+    titles: string[];
 
     constructor() {}
 
@@ -28,7 +32,13 @@ export class User {
     // #region endpoints
     public static async fetchHandler(request, _, db: SupabaseClient) {
         // route: tp_number (string)
-        return await User.fetchUser(request.params.tp_number, db);
+        try{
+            return await User.fetchUser(request.params.tp_number, db);
+        }
+        catch (error)
+        {
+            return Outcome.Error;
+        }
     }
 
     // admin
@@ -37,12 +47,14 @@ export class User {
 
         let user = request.body.user;
 
-        if ((await User.fetchUser(user.tp_number, db)) != undefined) {
-            // gotta toString() if not Outcome
-            return UserError.AlreadyExist.toString();
-        }
+        try 
+        {
+            if ((await User.fetchUser(user.tp_number, db)) != undefined) {
+                // gotta toString() if not Outcome
+                return UserError.AlreadyExist.toString();
+            }
 
-        const { error } = await db
+            const { error } = await db
             .schema('apugdc')
             .from('user')
             .insert({
@@ -55,12 +67,21 @@ export class User {
                 phone_number: user.phone_number,
                 committee: user.committee,
                 additional: user.additional,
+                favourite_game_genre: user.favourite_game_genre,
+                interest: user.interest,
+                active_battlepass: user.active_battlepass,
+                titles: user.titles
             });
 
-        return error == undefined ? Outcome.Success : (
-            error.code == '22P02' ? Outcome.InvalidFormat : Outcome.InvalidParameters
-        )
-
+            return error == undefined ? Outcome.Success : (
+                error.code == '22P02' ? Outcome.InvalidFormat : Outcome.InvalidParameters
+            )
+        }
+        catch (error)
+        {
+            return Outcome.Error;
+        }
+       
         // 22P02 types mismatched
         // 23502 parameters wrong
         // not sure if codes are persistent
@@ -70,31 +91,41 @@ export class User {
         // body: user (User)
 
         let user = request.body.user;
-
-        if ((await User.fetchUser(user.tp_number, db)) == undefined) {
-            return UserError.NoExist.toString();
+        try
+        {
+            if ((await User.fetchUser(user.tp_number, db)) == undefined) {
+                return UserError.NoExist.toString();
+            }
+    
+            console.log(user.course);
+    
+            const { data, error} = await db
+                .schema('apugdc')
+                .from('user')
+                .update({
+                    name: user.name,
+                    email: user.email,
+                    course: user.course,
+                    join_timestamp: user.join_timestamp,
+                    birth_timestamp: user.birth_timestamp,
+                    phone_number: user.phone_number,
+                    committee: user.committee,
+                    additional: user.additional,
+                    favourite_game_genre: user.favourite_game_genre,
+                    interest: user.interest,
+                    active_battlepass: user.active_battlepass,
+                    titles: user.titles
+                })
+                .eq('tp_number', user.tp_number);
+            
+            return error == undefined ? Outcome.Success : (
+                error.code == '22P02' ? Outcome.InvalidFormat : Outcome.InvalidParameters
+            )
         }
-
-        console.log(user.course);
-
-        const { data, error} = await db
-            .schema('apugdc')
-            .from('user')
-            .update({
-                name: user.name,
-                email: user.email,
-                course: user.course,
-                join_timestamp: user.join_timestamp,
-                birth_timestamp: user.birth_timestamp,
-                phone_number: user.phone_number,
-                committee: user.committee,
-                additional: user.additional,
-            })
-            .eq('tp_number', user.tp_number);
-        
-        return error == undefined ? Outcome.Success : (
-            error.code == '22P02' ? Outcome.InvalidFormat : Outcome.InvalidParameters
-        )
+        catch (error)
+        {
+            return Outcome.Error;
+        }
     }
 
     public static async deleteHandler(request, _, db: SupabaseClient) {
@@ -102,17 +133,25 @@ export class User {
 
         let tp_number = request.params.tp_number;
 
-        if ((await User.fetchUser(tp_number, db)) == undefined) {
-            return UserError.NoExist.toString();
+        try{
+            if ((await User.fetchUser(tp_number, db)) == undefined) {
+                return UserError.NoExist.toString();
+            }
+    
+            await db
+                .schema('apugdc')
+                .from('user')
+                .delete()
+                .eq('tp_number', tp_number);
+    
+            return Outcome.Success;
+        }
+        catch (error)
+        {
+           return Outcome.Error;
         }
 
-        await db
-            .schema('apugdc')
-            .from('user')
-            .delete()
-            .eq('tp_number', tp_number);
-
-        return Outcome.Success;
+       
     }
     // 
     // #endregion

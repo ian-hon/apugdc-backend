@@ -10,6 +10,7 @@ import 'dotenv/config';
 // to anyone reading this, pls know i was gonna make a full fledged security system; i am not a loser 🙏🏻
 
 // rate limiting (?)
+
 export function validateAction(body) {
     return (body.password == process.env.PASSWORD);
 }

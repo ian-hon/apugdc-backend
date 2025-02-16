@@ -13,6 +13,9 @@ export enum Outcome {
 
     // non-admin trying to access admin stuff
     NoPermission = 'NoPermission',
+
+    // Miscellaneous error from within backend. Not database error
+    Error = 'Error',
 }
 
 export enum UserError {
