@@ -97,8 +97,6 @@ export class User {
                 return UserError.NoExist.toString();
             }
     
-            console.log(user.course);
-    
             const { data, error} = await db
                 .schema('apugdc')
                 .from('user')
