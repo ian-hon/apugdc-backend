@@ -70,7 +70,7 @@ export class Event {
     
         try
         {
-            await db
+            const { data } =await db
             .schema('apugdc')
             .from('event')
             .update({
@@ -84,6 +84,11 @@ export class Event {
             })
             .eq('id', event.id);
     
+            // if (data == null)
+            // {
+            //     return Outcome
+            // }
+            console.log(data);
             return Outcome.Success;
         }
         catch(error)

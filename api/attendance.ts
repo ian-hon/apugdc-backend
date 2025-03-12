@@ -1,5 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { Outcome, UserError } from "./outcome";
+import { Outcome } from "./outcome";
+import { User } from "./user";
 
 export class Attendance{
     id: number;
@@ -35,13 +36,32 @@ export class Attendance{
         
         try
         {
+            if ((await User.fetchUser(attendance.tp_number, db)) == undefined) {
+                return Outcome.DatabaseError.withMessage("User not found")
+            }
+
             const { data } = await db
             .schema('apugdc')
             .from('attendance')
             .select()
             .eq('tp_number', attendance.tp_number)
 
-            return data;
+            return data ? data : [];
+        }
+        catch(error)
+        {
+            return Outcome.Error;
+        }
+    }
+
+    public static async fetchBySeason(request, _, db: SupabaseClient){
+        let attendance = request.body.attendance;
+        try{
+            const { data } = await db
+            .schema('apugdc')
+            .from('attendance')
+            .select()
+            .eq('season', attendance.tp_number)
         }
         catch(error)
         {
@@ -89,7 +109,7 @@ export class Attendance{
             console.log(error)
 
             return error == undefined ? Outcome.Success : (
-                error.code == '23503' ? UserError.NoExist.toString() :  // Foreign key violation
+                error.code == '23503' ? Outcome.DatabaseError :  // Foreign key violation
                 error.code == '22P02' ? Outcome.InvalidFormat : Outcome.InvalidParameters
             );
         }

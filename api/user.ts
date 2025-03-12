@@ -1,5 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { Outcome, UserError } from "./outcome";
+import { Outcome } from "./outcome";
 
 export class User {
     tp_number: string;
@@ -51,7 +51,7 @@ export class User {
         {
             if ((await User.fetchUser(user.tp_number, db)) != undefined) {
                 // gotta toString() if not Outcome
-                return UserError.AlreadyExist.toString();
+                return Outcome.DatabaseError.withMessage("User already exist");
             }
 
             const { error } = await db
@@ -94,7 +94,7 @@ export class User {
         try
         {
             if ((await User.fetchUser(user.tp_number, db)) == undefined) {
-                return UserError.NoExist.toString();
+                return Outcome.DatabaseError.withMessage("User not found")
             }
     
             const { data, error} = await db
@@ -133,7 +133,7 @@ export class User {
 
         try{
             if ((await User.fetchUser(tp_number, db)) == undefined) {
-                return UserError.NoExist.toString();
+                return Outcome.DatabaseError.withMessage("User not found")
             }
     
             await db
